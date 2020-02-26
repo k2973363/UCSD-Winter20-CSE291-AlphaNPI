@@ -22,7 +22,7 @@ class ListEnvEncoder(nn.Module):
         return x
 
 
-class ListEnv(Environment):
+class AddEnv(Environment):
     """Class that represents a list environment. It represents a list of size length of digits. The digits are 10-hot-encoded.
     There are two pointers, each one pointing on a list element. Both pointers can point on the same element.
 
@@ -37,7 +37,7 @@ class ListEnv(Environment):
     The episode stops when the list is sorted.
     """
 
-    def __init__(self, length=10, encoding_dim=32, hierarchy=True):
+    def __init__(self, length=10, encoding_dim=32):
 
         assert length > 0, "length must be a positive integer"
         self.length = length
@@ -47,80 +47,58 @@ class ListEnv(Environment):
         self.encoding_dim = encoding_dim
         self.has_been_reset = False
 
-        if hierarchy:
-            self.programs_library = {'PTR_1_LEFT': {'level': 0, 'recursive': False},
-                                     'STOP': {'level': -1, 'recursive': False},
-                                     'PTR_2_LEFT': {'level': 0, 'recursive': False},
-                                     'PTR_1_RIGHT': {'level': 0, 'recursive': False},
-                                     'PTR_2_RIGHT': {'level': 0, 'recursive': False},
-                                     'SWAP': {'level': 0, 'recursive': False},
-                                     'RSHIFT': {'level': 1, 'recursive': False},
-                                     'LSHIFT': {'level': 1, 'recursive': False},
-                                     'COMPSWAP': {'level': 1, 'recursive': False},
-                                     'RESET': {'level': 2, 'recursive': False},
-                                     'BUBBLE': {'level': 2, 'recursive': False},
-                                     'BUBBLESORT': {'level': 3, 'recursive': False}}
-            for idx, key in enumerate(sorted(list(self.programs_library.keys()))):
-                self.programs_library[key]['index'] = idx
+        self.programs_library = {#level - 0 atomic operations
+                                'PTR_1_LEFT': {'level': 0, 'recursive': False},
+                                'STOP': {'level': -1, 'recursive': False},
+                                'PTR_2_LEFT': {'level': 0, 'recursive': False},
+                                'PTR_O_LEFT': {'level': 0, 'recursive': False},
+                                'PTR_C_LEFT': {'level': 0, 'recursive': False},
+                                'PTR_C_RIGHT': {'level': 0, 'recursive': False},
+                                'WRITE_OUTPUT': {'level': 0, 'recursive': False},
+                                'WRITE_CARRY': {'level': 0, 'recursive': False},
+                                #level - 1 operations
+                                'CARRY': {'level': 1, 'recursive': False},
+                                'LSHIFT': {'level': 1, 'recursive': False},
+                                #level - 2 operation
+                                #'RESET': {'level': 2, 'recursive': False},
+                                'ADD_1': {'level': 2, 'recursive': False},
+                                #level - 3 operation
+                                'ADD': {'level': 3, 'recursive': False}}
+        for idx, key in enumerate(sorted(list(self.programs_library.keys()))):
+            self.programs_library[key]['index'] = idx
 
-            self.prog_to_func = {'STOP': self._stop,
-                                 'PTR_1_LEFT': self._ptr_1_left,
-                                 'PTR_2_LEFT': self._ptr_2_left,
-                                 'PTR_1_RIGHT': self._ptr_1_right,
-                                 'PTR_2_RIGHT': self._ptr_2_right,
-                                 'SWAP': self._swap}
+        self.prog_to_func = {'STOP': self._stop,
+                            'PTR_1_LEFT': self._ptr_1_left,
+                            'PTR_2_LEFT': self._ptr_2_left,
+                            'PTR_O_LEFT': self._ptr_o_left,
+                            'PTR_C_LEFT': self._ptr_c_left,
+                            'PTR_C_RIGHT': self._ptr_c_right,
+                            'WRITE_CARRY': self._write_carry,
+                            'WRITE_OUTPUT': self._write_output
+                            }
 
-            self.prog_to_precondition = {'STOP': self._stop_precondition,
-                                         'RSHIFT': self._rshift_precondition,
-                                         'LSHIFT': self._lshift_precondition,
-                                         'COMPSWAP': self._compswap_precondition,
-                                         'RESET': self._reset_precondition,
-                                         'BUBBLE': self._bubble_precondition,
-                                         'BUBBLESORT': self._bubblesort_precondition,
-                                         'PTR_1_LEFT': self._ptr_1_left_precondition,
-                                         'PTR_2_LEFT': self._ptr_2_left_precondition,
-                                         'PTR_1_RIGHT': self._ptr_1_right_precondition,
-                                         'PTR_2_RIGHT': self._ptr_2_right_precondition,
-                                         'SWAP': self._swap_precondition}
+        self.prog_to_precondition = {'ADD': self._add_precondition,
+                                    'ADD_1': self._add_1_precondition,
+                                    'LSHIFT': self._lshift_precondition,
+                                    'CARRY': self._carry_precondition,
+                                    #'RESET': self._reset_precondition,
+                                    'STOP': self._stop_precondition,
+                                    'PTR_1_LEFT': self._ptr_1_left_precondition,
+                                    'PTR_2_LEFT': self._ptr_2_left_precondition,
+                                    'PTR_O_LEFT': self._ptr_o_left_precondition,
+                                    'PTR_C_LEFT': self._ptr_c_left_precondition,
+                                    'PTR_C_RIGHT': self._ptr_c_right_precondition,
+                                    'WRITE_OUTPUT': self._write_ouptut_precondition,
+                                    'WRITE_CARRY': self._write_carry_precondition
+                                    }
 
-            self.prog_to_postcondition = {'RSHIFT': self._rshift_postcondition,
-                                          'LSHIFT': self._lshift_postcondition,
-                                          'COMPSWAP': self._compswap_postcondition,
-                                          'RESET': self._reset_postcondition,
-                                          'BUBBLE': self._bubble_postcondition,
-                                          'BUBBLESORT': self._bubblesort_postcondition}
+        self.prog_to_postcondition = {'LSHIFT': self._lshift_postcondition,
+                                    'CARRY': self._carry_postcondition,
+                                    #'RESET': self._reset_postcondition,
+                                    'ADD_1': self._add_1_postcondition,
+                                    'ADD': self._add_postcondition}
 
-        else:
-            # In no hierarchy mode, the only non-zero program is Bubblesort
-
-            self.programs_library = {'PTR_1_LEFT': {'level': 0, 'recursive': False},
-                                     'STOP': {'level': -1, 'recursive': False},
-                                     'PTR_2_LEFT': {'level': 0, 'recursive': False},
-                                     'PTR_1_RIGHT': {'level': 0, 'recursive': False},
-                                     'PTR_2_RIGHT': {'level': 0, 'recursive': False},
-                                     'SWAP': {'level': 0, 'recursive': False},
-                                     'BUBBLESORT': {'level': 1, 'recursive': False}}
-            for idx, key in enumerate(sorted(list(self.programs_library.keys()))):
-                self.programs_library[key]['index'] = idx
-
-            self.prog_to_func = {'STOP': self._stop,
-                                 'PTR_1_LEFT': self._ptr_1_left,
-                                 'PTR_2_LEFT': self._ptr_2_left,
-                                 'PTR_1_RIGHT': self._ptr_1_right,
-                                 'PTR_2_RIGHT': self._ptr_2_right,
-                                 'SWAP': self._swap}
-
-            self.prog_to_precondition = {'STOP': self._stop_precondition,
-                                         'BUBBLESORT': self._bubblesort_precondition,
-                                         'PTR_1_LEFT': self._ptr_1_left_precondition,
-                                         'PTR_2_LEFT': self._ptr_2_left_precondition,
-                                         'PTR_1_RIGHT': self._ptr_1_right_precondition,
-                                         'PTR_2_RIGHT': self._ptr_2_right_precondition,
-                                         'SWAP': self._swap_precondition}
-
-            self.prog_to_postcondition = {'BUBBLESORT': self._bubblesort_postcondition}
-
-        super(ListEnv, self).__init__(self.programs_library, self.prog_to_func,
+        super(AddEnv, self).__init__(self.programs_library, self.prog_to_func,
                                                self.prog_to_precondition, self.prog_to_postcondition)
 
     def _ptr_1_left(self):
