@@ -187,7 +187,39 @@ class AddEnv(Environment):
         return bool
 
     def _lshift_precondition(self):
-        return self.p1_pos > 0 and self.p2_pos > 0 and self.p_o_pos > 0 and self.p_c_pos > 0
+        # TODO: use "and" to have tighter precondition?
+        return self.p1_pos > 0 or self.p2_pos > 0 or self.p_o_pos > 0 or self.p_c_pos > 0
+
+    def _lshift_postcondition(self, init_state, state):
+        init_scratchpad_ints_input_1, init_scratchpad_ints_input_2, \
+        init_scratchpad_ints_carry, init_scratchpad_ints_output, \
+        init_p1_pos, init_p2_pos, init_p_c_pos, init_p_o_pos = init_state
+
+        scratchpad_ints_input_1, scratchpad_ints_input_2,\
+        scratchpad_ints_carry, scratchpad_ints_output, \
+        p1_pos, p2_pos, p_c_pos, p_o_pos = state
+
+        bool = np.array_equal(init_scratchpad_ints_input_1, scratchpad_ints_input_1)
+        bool &= np.array_equal(init_scratchpad_ints_input_2, scratchpad_ints_input_2)
+        bool &= np.array_equal(init_scratchpad_ints_carry, scratchpad_ints_carry)
+        bool &= np.array_equal(init_scratchpad_ints_output, scratchpad_ints_output)
+        if init_p1_pos > 0:
+            bool &= p1_pos == (init_p1_pos-1)
+        else:
+            bool &= p1_pos == init_p1_pos
+        if init_p2_pos > 0:
+            bool &= p2_pos == (init_p2_pos-1)
+        else:
+            bool &= p2_pos == init_p2_pos
+        if init_p_c_pos > 0:
+            bool &= p_c_pos == (init_p_c_pos-1)
+        else:
+            bool &= p_c_pos == init_p_c_pos
+        if init_p_o_pos > 0:
+            bool &= p_o_pos == (init_p_o_pos-1)
+        else:
+            bool &= p_o_pos == init_p_o_pos
+        return bool
 
     def _bubble_precondition(self):
         bool = self.p1_pos == 0
@@ -214,20 +246,6 @@ class AddEnv(Environment):
             new_scratchpad_ints[[idx_left, idx_right]] = new_scratchpad_ints[[idx_right, idx_left]]
         new_state = (new_scratchpad_ints, new_p1_pos, new_p2_pos)
         return self.compare_state(state, new_state)
-
-    def _lshift_postcondition(self, init_state, state):
-        init_scratchpad_ints, init_p1_pos, init_p2_pos = init_state
-        scratchpad_ints, p1_pos, p2_pos = state
-        bool = np.array_equal(init_scratchpad_ints, scratchpad_ints)
-        if init_p1_pos > 0:
-            bool &= p1_pos == (init_p1_pos-1)
-        else:
-            bool &= p1_pos == init_p1_pos
-        if init_p2_pos > 0:
-            bool &= p2_pos == (init_p2_pos-1)
-        else:
-            bool &= p2_pos == init_p2_pos
-        return bool
 
     def _rshift_postcondition(self, init_state, state):
         init_scratchpad_ints, init_p1_pos, init_p2_pos = init_state
