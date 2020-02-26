@@ -41,9 +41,14 @@ class AddEnv(Environment):
 
         assert length > 0, "length must be a positive integer"
         self.length = length
-        self.scratchpad_ints = np.zeros((length,))
+        self.scratchpad_ints_input_1 = np.zeros((length,), dtype=int)
+        self.scratchpad_ints_input_2 = np.zeros((length,), dtype=int)
+        self.scratchpad_ints_carry = np.zeros((length,), dtype=int)
+        self.scratchpad_ints_output = np.zeros((length,), dtype=int)
         self.p1_pos = 0
         self.p2_pos = 0
+        self.p_o_pos = 0
+        self.p_c_pos = 0
         self.encoding_dim = encoding_dim
         self.has_been_reset = False
 
@@ -124,39 +129,65 @@ class AddEnv(Environment):
     def _ptr_2_left_precondition(self):
         return self.p2_pos > 0
 
-    def _ptr_1_right(self):
-        """Move pointer 1 to the right."""
-        if self.p1_pos < (self.length - 1):
-            self.p1_pos += 1
+    def _ptr_o_left(self):
+        """Move pointer ouptut to the left."""
+        if self.p_o_pos > 0:
+            self.p_o_pos -= 1
 
-    def _ptr_1_right_precondition(self):
-        return self.p1_pos < self.length-1
+    def _ptr_o_left_precondition(self):
+        return self.p_o_pos > 0
 
-    def _ptr_2_right(self):
-        """Move pointer 2 to the right."""
-        if self.p2_pos < (self.length - 1):
-            self.p2_pos += 1
+    def _ptr_c_left(self):
+        """Move pointer carry to the left."""
+        if self.p_c_pos > 0:
+            self.p_c_pos -= 1
 
-    def _ptr_2_right_precondition(self):
-        return self.p2_pos < self.length-1
+    def _ptr_c_left_precondition(self):
+        return self.p_c_pos > 0
 
-    def _swap(self):
-        """Swap the elements pointed by pointers 1 and 2."""
-        self.scratchpad_ints[[self.p1_pos, self.p2_pos]] = self.scratchpad_ints[[self.p2_pos, self.p1_pos]]
+    def _ptr_c_right(self):
+        """Move pointer carry to the right."""
+        if self.p_c_pos < (self.length - 1):
+            self.p_c_pos += 1
 
-    def _swap_precondition(self):
-        return self.p1_pos != self.p2_pos
+    def _ptr_c_right_precondition(self):
+        return self.p_c_pos < self.length-1
 
-    def _compswap_precondition(self):
-        bool = self.p1_pos < self.length-1
-        bool &= self.p2_pos == self.p1_pos or self.p2_pos == (self.p1_pos + 1)
+    def _write_output(self):
+        """Write output value from the current pointer's value"""
+        output = self.scratchpad_ints_input_1[self.p1_pos]
+        output += self.scratchpad_ints_input_2[self.p2_pos]
+        output += self.scratchpad_ints_carry[self.p_c_pos]
+        if output >= 10:
+            self.scratchpad_ints_output[self.p_o_pos] = output - 10
+        else:
+            self.scratchpad_ints_output[self.p_o_pos] = output
+
+    def _write_ouptut_precondition(self):
+        """All the pointers should be at the same position"""
+        bool = self.p1_pos == self.p2_pos
+        bool &= self.p2_pos == self.p_c_pos
+        bool &= self.p_c_pos == self.p_o_pos
+        return bool
+
+    def _write_carry(self):
+        """Write carry value from the current pointers' values"""
+        output = self.scratchpad_ints_input_1[self.p1_pos]
+        output += self.scratchpad_ints_input_2[self.p2_pos]
+        if output >= 10:
+            self.scratchpad_ints_carry[self.p_c_pos] = 1
+        else:
+            self.scratchpad_ints_carry[self.p_c_pos] = 0
+
+    def _write_carry_precondition(self):
+        """The carry pointer should be one step ahead of all the other pointers """
+        bool = self.p1_pos == self.p2_pos
+        bool &= self.p2_pos == self.p_o_pos
+        bool &= (self.p_o_pos - 1) == self.p_c_pos
         return bool
 
     def _lshift_precondition(self):
-        return self.p1_pos > 0 or self.p2_pos > 0
-
-    def _rshift_precondition(self):
-        return self.p1_pos < self.length-1 or self.p2_pos < self.length-1
+        return self.p1_pos > 0 and self.p2_pos > 0 and self.p_o_pos > 0 and self.p_c_pos > 0
 
     def _bubble_precondition(self):
         bool = self.p1_pos == 0
