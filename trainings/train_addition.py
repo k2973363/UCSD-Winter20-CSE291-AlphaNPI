@@ -37,11 +37,11 @@ if __name__ == "__main__":
     ts = time.localtime(time.time())
     date_time = '{}_{}_{}-{}_{}_{}'.format(ts[0], ts[1], ts[2], ts[3], ts[4], ts[5])
     # Path to save policy
-    model_save_path = '../models/list_npi_{}-{}.pth'.format(date_time, seed)
+    model_save_path = '../models/add_npi_{}-{}.pth'.format(date_time, seed)
     # Path to save results
-    results_save_path = '../results/list_npi_{}-{}.txt'.format(date_time, seed)
+    results_save_path = '../results/add_npi_{}-{}.txt'.format(date_time, seed)
     # Path to tensorboard
-    tensorboard_path = 'runs/list_npi_{}-{}'.format(date_time, seed)
+    tensorboard_path = 'runs/add_npi_{}-{}'.format(date_time, seed)
 
     # Instantiate tensorboard writer
     if tensorboard:
