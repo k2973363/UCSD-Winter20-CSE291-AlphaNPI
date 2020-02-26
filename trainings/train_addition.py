@@ -57,6 +57,7 @@ if __name__ == "__main__":
     torch.manual_seed(seed)
 
     # Load environment constants
+    # TODO
     env_tmp = ListEnv(length=5, encoding_dim=conf.encoding_dim)
     num_programs = env_tmp.get_num_programs()
     num_non_primary_programs = env_tmp.get_num_non_primary_programs()
@@ -64,6 +65,7 @@ if __name__ == "__main__":
     programs_library = env_tmp.programs_library
 
     # Load alphanpi policy
+    # TODO
     encoder = ListEnvEncoder(env_tmp.get_observation_dim(), conf.encoding_dim)
     indices_non_primary_programs = [p['index'] for _, p in programs_library.items() if p['level'] > 0]
     policy = Policy(encoder, conf.hidden_size, num_programs, num_non_primary_programs, conf.program_embedding_dim,
@@ -95,6 +97,7 @@ if __name__ == "__main__":
                       mcts_test_params, conf.num_validation_episodes, conf.num_episodes_per_task, conf.batch_size,
                       conf.num_updates_per_episode, verbose)
 
+    # TODO
     min_length = 2
     max_length = 7
     validation_length = 7
