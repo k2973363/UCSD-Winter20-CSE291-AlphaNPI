@@ -1,4 +1,4 @@
-from environments.list_env import ListEnv, ListEnvEncoder
+from environments.add_env import AddEnv, AddEnvEncoder
 from core.curriculum import CurriculumScheduler
 from core.policy import Policy
 import core.config as conf
@@ -58,7 +58,7 @@ if __name__ == "__main__":
 
     # Load environment constants
     # TODO
-    env_tmp = ListEnv(length=5, encoding_dim=conf.encoding_dim)
+    env_tmp = AddEnv(length=5, encoding_dim=conf.encoding_dim)
     num_programs = env_tmp.get_num_programs()
     num_non_primary_programs = env_tmp.get_num_non_primary_programs()
     observation_dim = env_tmp.get_observation_dim()
@@ -66,7 +66,7 @@ if __name__ == "__main__":
 
     # Load alphanpi policy
     # TODO
-    encoder = ListEnvEncoder(env_tmp.get_observation_dim(), conf.encoding_dim)
+    encoder = AddEnvEncoder(env_tmp.get_observation_dim(), conf.encoding_dim)
     indices_non_primary_programs = [p['index'] for _, p in programs_library.items() if p['level'] > 0]
     policy = Policy(encoder, conf.hidden_size, num_programs, num_non_primary_programs, conf.program_embedding_dim,
                     conf.encoding_dim, indices_non_primary_programs, conf.learning_rate)
