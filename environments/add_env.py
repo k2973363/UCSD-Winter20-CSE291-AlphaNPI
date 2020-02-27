@@ -533,10 +533,15 @@ class AddEnv(Environment):
 
     def get_state_str(self, state):
         """Print a graphical representation of the environment state"""
-        scratchpad = state[0].copy()  # check
-        p1_pos = state[1]
-        p2_pos = state[2]
-        str = 'list: {}, p1 : {}, p2 : {}'.format(scratchpad, p1_pos, p2_pos)
+        input1 = state[0].copy()  # check
+        input2 = state[1].copy()  # check
+        carry = state[2].copy()  # check
+        output = state[3].copy()  # check
+        p1_pos = state[4]
+        p2_pos = state[5]
+        p_c_pos = state[6]
+        p_o_pos = state[7]
+        str = 'input1 : {}, input2 : {}, carry : {}, output : {}, p1 : {}, p2 : {}, pc : {}, po : {}'.format(input1, input2, carry, output, p1_pos, p2_pos, p_c_pos, p_o_pos)
         return str
 
     def compare_state(self, state1, state2):
@@ -553,6 +558,11 @@ class AddEnv(Environment):
         """
         bool = True
         bool &= np.array_equal(state1[0], state2[0])
-        bool &= (state1[1] == state2[1])
-        bool &= (state1[2] == state2[2])
+        bool &= np.array_equal(state1[1], state2[1])
+        bool &= np.array_equal(state1[2], state2[2])
+        bool &= np.array_equal(state1[3], state2[3])
+        bool &= (state1[4] == state2[4])
+        bool &= (state1[5] == state2[5])
+        bool &= (state1[6] == state2[6])
+        bool &= (state1[7] == state2[7])
         return bool
