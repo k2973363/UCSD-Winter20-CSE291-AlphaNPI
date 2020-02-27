@@ -5,14 +5,14 @@ import torch.nn.functional as F
 from environments.environment import Environment
 
 
-class ListEnvEncoder(nn.Module):
+class AddEnvEncoder(nn.Module):
     '''
     Implement an encoder (f_enc) specific to the List environment. It encodes observations e_t into
     vectors s_t of size D = encoding_dim.
     '''
 
     def __init__(self, observation_dim, encoding_dim):
-        super(ListEnvEncoder, self).__init__()
+        super(AddEnvEncoder, self).__init__()
         self.l1 = nn.Linear(observation_dim, 100)
         self.l2 = nn.Linear(100, encoding_dim)
 
