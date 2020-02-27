@@ -63,6 +63,8 @@ class Trainer():
 
         # Start training on the task
         for episode in range(self.num_episodes_per_task):
+            if self.verbose:
+                print('=> Episode: %d' %(episode))
 
             # Start new episode
             mcts = MCTS(self.policy, self.env, task_index, **self.mcts_train_params)

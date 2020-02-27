@@ -57,7 +57,6 @@ if __name__ == "__main__":
     torch.manual_seed(seed)
 
     # Load environment constants
-    # TODO
     env_tmp = AddEnv(length=5, encoding_dim=conf.encoding_dim)
     num_programs = env_tmp.get_num_programs()
     num_non_primary_programs = env_tmp.get_num_non_primary_programs()
@@ -65,7 +64,6 @@ if __name__ == "__main__":
     programs_library = env_tmp.programs_library
 
     # Load alphanpi policy
-    # TODO
     encoder = AddEnvEncoder(env_tmp.get_observation_dim(), conf.encoding_dim)
     indices_non_primary_programs = [p['index'] for _, p in programs_library.items() if p['level'] > 0]
     policy = Policy(encoder, conf.hidden_size, num_programs, num_non_primary_programs, conf.program_embedding_dim,
@@ -80,6 +78,7 @@ if __name__ == "__main__":
                                                moving_average=0.99)
 
     # Prepare mcts params
+    # TODO
     length = 5
     max_depth_dict = {1: 5, 2: 2 * length + 3, 3: 2 * length + 3}
     mcts_train_params = {'number_of_simulations': conf.number_of_simulations, 'max_depth_dict': max_depth_dict,
@@ -103,12 +102,14 @@ if __name__ == "__main__":
     validation_length = 7
     # Start training
     for iteration in range(conf.num_iterations):
+        if verbose:
+            print("Iteration => %d" %(iteration))
 
         # play one iteration
         task_index = curriculum_scheduler.get_next_task_index()
         task_level = env_tmp.get_program_level_from_index(task_index)
         length = np.random.randint(min_length, max_length+1)
-        env = ListEnv(length=length, encoding_dim=conf.encoding_dim)
+        env = AddEnv(length=length, encoding_dim=conf.encoding_dim)
         max_depth_dict = {1: 5, 2: 2 * length + 3, 3: 2 * length + 3}
         trainer.env = env
         trainer.mcts_train_params['max_depth_dict'] = max_depth_dict
@@ -121,7 +122,7 @@ if __name__ == "__main__":
         for idx in curriculum_scheduler.get_tasks_of_maximum_level():
             task_level = env_tmp.get_program_level_from_index(idx)
             length = validation_length
-            env = ListEnv(length=length, encoding_dim=conf.encoding_dim)
+            env = AddEnv(length=length, encoding_dim=conf.encoding_dim)
             max_depth_dict = {1: 5, 2: 2 * length + 3, 3: 2 * length + 3}
             trainer.env = env
             trainer.mcts_train_params['max_depth_dict'] = max_depth_dict
