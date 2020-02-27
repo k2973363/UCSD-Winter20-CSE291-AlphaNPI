@@ -174,6 +174,7 @@ class AddEnv(Environment):
         """Write carry value from the current pointers' values"""
         output = self.scratchpad_ints_input_1[self.p1_pos]
         output += self.scratchpad_ints_input_2[self.p2_pos]
+        output += self.scratchpad_ints_carry[self.p_c_pos + 1]
         if output >= 10:
             self.scratchpad_ints_carry[self.p_c_pos] = 1
         else:
@@ -221,10 +222,35 @@ class AddEnv(Environment):
             bool &= p_o_pos == init_p_o_pos
         return bool
 
-    def _bubble_precondition(self):
-        bool = self.p1_pos == 0
-        bool &= ((self.p2_pos == 0) or (self.p2_pos == 1))
+    def _carry_precondition(self):
+        """All the pointers should be at the same position
+           All the pointers should be at > 0 position"""
+        bool = self.p1_pos == self.p2_pos
+        bool &= self.p2_pos == self.p_c_pos
+        bool &= self.p_c_pos == self.p_o_pos
+        bool &= (self.p_o_pos > 0)
         return bool
+
+    def _carry_postcondition(self, init_state, state):
+        init_scratchpad_ints_input_1, init_scratchpad_ints_input_2, \
+        init_scratchpad_ints_carry, init_scratchpad_ints_output, \
+        init_p1_pos, init_p2_pos, init_p_c_pos, init_p_o_pos = init_state
+
+        new_scratchpad_ints_carry = np.copy(init_scratchpad_ints_carry)
+
+        output = init_scratchpad_ints_input_1[init_p1_pos]
+        output += init_scratchpad_ints_input_2[init_p2_pos]
+        output += init_scratchpad_ints_carry[init_p_c_pos]
+        # Precondition had ruled out the condition that init_p_c_pos=0
+        if output >= 10:
+            new_scratchpad_ints_carry[init_p_c_pos - 1] = 1
+        else:
+            new_scratchpad_ints_carry[init_p_c_pos - 1] = 0
+
+        new_state = (init_scratchpad_ints_input_1, init_scratchpad_ints_input_2,
+                    new_scratchpad_ints_carry, init_scratchpad_ints_output,
+                    init_p1_pos, init_p2_pos, init_p_c_pos, init_p_o_pos)
+        return self.compare_state(state, new_state)
 
     def _reset_precondition(self):
         bool = True
@@ -272,18 +298,6 @@ class AddEnv(Environment):
         scratchpad_ints, p1_pos, p2_pos = state
         # check if list is sorted
         return np.all(scratchpad_ints[:self.length-1] <= scratchpad_ints[1:self.length])
-
-    def _bubble_postcondition(self, init_state, state):
-        new_scratchpad_ints, new_p1_pos, new_p2_pos = init_state
-        new_scratchpad_ints = np.copy(new_scratchpad_ints)
-        for idx in range(0, self.length-1):
-            if new_scratchpad_ints[idx+1] < new_scratchpad_ints[idx]:
-                new_scratchpad_ints[[idx, idx+1]] = new_scratchpad_ints[[idx+1, idx]]
-        # bubble is expected to terminate with both pointers at the extreme left of the list
-        new_p1_pos = self.length-1
-        new_p2_pos = self.length-1
-        new_state = (new_scratchpad_ints, new_p1_pos, new_p2_pos)
-        return self.compare_state(state, new_state)
 
     def _one_hot_encode(self, digit, basis=10):
         """One hot encode a digit with basis.
