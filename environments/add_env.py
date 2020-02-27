@@ -41,10 +41,10 @@ class AddEnv(Environment):
 
         assert length > 0, "length must be a positive integer"
         self.length = length
-        self.scratchpad_ints_input_1 = np.zeros((length,), dtype=int)
-        self.scratchpad_ints_input_2 = np.zeros((length,), dtype=int)
-        self.scratchpad_ints_carry = np.zeros((length,), dtype=int)
-        self.scratchpad_ints_output = np.zeros((length,), dtype=int)
+        self.scratchpad_ints_input_1 = np.zeros((length,), dtype=int) #[0]=0, others: randomly between 0-9
+        self.scratchpad_ints_input_2 = np.zeros((length,), dtype=int) #[0]=0, others: randomly between 0-9
+        self.scratchpad_ints_carry = np.zeros((length,), dtype=int)   #[length-1]=0, others = -1?
+        self.scratchpad_ints_output = np.zeros((length,), dtype=int)  #[:] = -1?
         self.p1_pos = 0
         self.p2_pos = 0
         self.p_o_pos = 0
@@ -63,9 +63,9 @@ class AddEnv(Environment):
                                 'WRITE_CARRY': {'level': 0, 'recursive': False},
                                 #level - 1 operations
                                 'CARRY': {'level': 1, 'recursive': False},
-                                'LSHIFT': {'level': 1, 'recursive': False},
                                 #level - 2 operation
                                 #'RESET': {'level': 2, 'recursive': False},
+                                'LSHIFT': {'level': 2, 'recursive': False},
                                 'ADD_1': {'level': 2, 'recursive': False},
                                 #level - 3 operation
                                 'ADD': {'level': 3, 'recursive': False}}
@@ -247,44 +247,91 @@ class AddEnv(Environment):
         else:
             new_scratchpad_ints_carry[init_p_c_pos - 1] = 0
 
+        # Check is the operation has already done
+        updated = init_scratchpad_ints_carry[init_p_c_pos - 1] != new_scratchpad_ints_carry[init_p_c_pos - 1]
+
         new_state = (init_scratchpad_ints_input_1, init_scratchpad_ints_input_2,
                     new_scratchpad_ints_carry, init_scratchpad_ints_output,
                     init_p1_pos, init_p2_pos, init_p_c_pos, init_p_o_pos)
-        return self.compare_state(state, new_state)
+        return self.compare_state(state, new_state) and updated
 
+    def _add_1_precondition(self):
+        """All the pointers should be at the same position
+           All the pointers should be at > 0 position"""
+        bool = self.p1_pos == self.p2_pos
+        bool &= self.p2_pos == self.p_c_pos
+        bool &= self.p_c_pos == self.p_o_pos
+        bool &= (self.p_o_pos > 0)
+        return bool
+
+    def _add_1_postcondition(self, init_state, state):
+        init_scratchpad_ints_input_1, init_scratchpad_ints_input_2, \
+        init_scratchpad_ints_carry, init_scratchpad_ints_output, \
+        init_p1_pos, init_p2_pos, init_p_c_pos, init_p_o_pos = init_state
+
+        new_scratchpad_ints_carry = np.copy(init_scratchpad_ints_carry)
+        new_scratchpad_ints_output = np.copy(init_scratchpad_ints_output)
+
+        output = init_scratchpad_ints_input_1[init_p1_pos]
+        output += init_scratchpad_ints_input_2[init_p2_pos]
+        output += init_scratchpad_ints_carry[init_p_c_pos]
+        # Carry
+        if output >= 10:
+            new_scratchpad_ints_carry[init_p_c_pos - 1] = 1
+        else:
+            new_scratchpad_ints_carry[init_p_c_pos - 1] = 0
+        # Output
+        if output >= 10:
+            new_scratchpad_ints_output[init_p_o_pos] = output - 10
+        else:
+            new_scratchpad_ints_output[init_p_o_pos] = output       
+
+        # Check is the operation has already done
+        updated = init_scratchpad_ints_carry[init_p_c_pos - 1] != new_scratchpad_ints_carry[init_p_c_pos - 1]
+        updated &= init_scratchpad_ints_output[init_p_o_pos - 1] != new_scratchpad_ints_output[init_p_o_pos - 1]
+
+        new_state = (init_scratchpad_ints_input_1, init_scratchpad_ints_input_2,
+                    new_scratchpad_ints_carry, new_scratchpad_ints_output,
+                    init_p1_pos, init_p2_pos, init_p_c_pos, init_p_o_pos)
+        return self.compare_state(state, new_state) and updated
+
+    def _add_precondition(self):
+        """All the pointers should be at the initial position"""
+        bool = self.p1_pos == self.p2_pos
+        bool &= self.p2_pos == self.p_c_pos
+        bool &= self.p_c_pos == self.p_o_pos
+        bool &= self.p_o_pos == self.length-1
+        return bool
+
+    def _add_postcondition(self, init_state, state):
+        # Check the output vector has the correct answer
+        scratchpad_ints_input_1, scratchpad_ints_input_2, \
+        scratchpad_ints_carry, scratchpad_ints_output, \
+        p1_pos, p2_pos, p_c_pos, p_o_pos = state
+
+        bool = True
+        temp_carry = 0
+        correct_output = -1
+        for index in reversed(range(1, self.length)):
+            output = scratchpad_ints_input_1[index] + scratchpad_ints_input_2[index] + temp_carry
+            # Output
+            if output >= 10:
+                correct_output = output - 10
+                temp_carry = 1
+            else:
+                correct_output = output
+                temp_carry = 0
+            
+            if correct_output != scratchpad_ints_output[index]:
+                bool = False
+                break
+
+        # check if list is sorted
+        return bool
+
+    # RESET
     def _reset_precondition(self):
         bool = True
-        return bool
-
-    def _bubblesort_precondition(self):
-        bool = self.p1_pos == 0
-        bool &= self.p2_pos == 0
-        return bool
-
-    def _compswap_postcondition(self, init_state, state):
-        new_scratchpad_ints, new_p1_pos, new_p2_pos = init_state
-        new_scratchpad_ints = np.copy(new_scratchpad_ints)
-        if new_p1_pos == new_p2_pos and new_p2_pos < self.length-1:
-            new_p2_pos += 1
-        idx_left = min(new_p1_pos, new_p2_pos)
-        idx_right = max(new_p1_pos, new_p2_pos)
-        if new_scratchpad_ints[idx_left] > new_scratchpad_ints[idx_right]:
-            new_scratchpad_ints[[idx_left, idx_right]] = new_scratchpad_ints[[idx_right, idx_left]]
-        new_state = (new_scratchpad_ints, new_p1_pos, new_p2_pos)
-        return self.compare_state(state, new_state)
-
-    def _rshift_postcondition(self, init_state, state):
-        init_scratchpad_ints, init_p1_pos, init_p2_pos = init_state
-        scratchpad_ints, p1_pos, p2_pos = state
-        bool = np.array_equal(init_scratchpad_ints, scratchpad_ints)
-        if init_p1_pos < self.length-1:
-            bool &= p1_pos == (init_p1_pos+1)
-        else:
-            bool &= p1_pos == init_p1_pos
-        if init_p2_pos < self.length-1:
-            bool &= p2_pos == (init_p2_pos+1)
-        else:
-            bool &= p2_pos == init_p2_pos
         return bool
 
     def _reset_postcondition(self, init_state, state):
@@ -293,11 +340,6 @@ class AddEnv(Environment):
         bool = np.array_equal(init_scratchpad_ints, scratchpad_ints)
         bool &= (p1_pos == 0 and p2_pos == 0)
         return bool
-
-    def _bubblesort_postcondition(self, init_state, state):
-        scratchpad_ints, p1_pos, p2_pos = state
-        # check if list is sorted
-        return np.all(scratchpad_ints[:self.length-1] <= scratchpad_ints[1:self.length])
 
     def _one_hot_encode(self, digit, basis=10):
         """One hot encode a digit with basis.
