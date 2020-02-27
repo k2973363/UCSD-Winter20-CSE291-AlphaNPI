@@ -374,49 +374,54 @@ class AddEnv(Environment):
         The carry/output lists are initialized by value -1
         """
         self.scratchpad_ints_input_1 = np.random.randint(10, size=self.length)
+        self.scratchpad_ints_input_1[0] = 0
         self.scratchpad_ints_input_2 = np.random.randint(10, size=self.length)
-        self.scratchpad_ints_input_1[[0,1]] = 0
-        self.scratchpad_ints_input_2[[0,1]] = 0
+        self.scratchpad_ints_input_2[0] = 0
 
         self.scratchpad_ints_carry = np.full((self.length,), -1, dtype=int)
         self.scratchpad_ints_carry[-1] = 0
         self.scratchpad_ints_output = np.full((self.length,), -1, dtype=int)
 
-        self.scratchpad_ints_input_1 = np.zeros((length,), dtype=int) #[0]=0, others: randomly between 0-9
-        self.scratchpad_ints_input_2 = np.zeros((length,), dtype=int) #[0]=0, others: randomly between 0-9
-        self.scratchpad_ints_carry = np.zeros((length,), dtype=int)   #[length-1]=0, others = -1?
-        self.scratchpad_ints_output = np.zeros((length,), dtype=int)  #[:] = -1?
-
         current_task_name = self.get_program_from_index(self.current_task_index)
-        if current_task_name == 'BUBBLE' or current_task_name == 'BUBBLESORT':
-            init_pointers_pos1 = 0
-            init_pointers_pos2 = 0
-        elif current_task_name == 'RESET':
-            while True:
-                init_pointers_pos1 = int(np.random.randint(0, self.length))
-                init_pointers_pos2 = int(np.random.randint(0, self.length))
-                if not (init_pointers_pos1 == 0 and init_pointers_pos2 == 0):
-                    break
+        if current_task_name == 'ADD':
+            init_pointers_pos1 = self.length - 1
+            init_pointers_pos2 = self.length - 1
+            init_pointers_pos_o = self.length - 1
+            init_pointers_pos_c = self.length - 1
+        # elif current_task_name == 'RESET':
+        #     while True:
+        #         init_pointers_pos1 = int(np.random.randint(0, self.length))
+        #         init_pointers_pos2 = int(np.random.randint(0, self.length))
+        #         if not (init_pointers_pos1 == 0 and init_pointers_pos2 == 0):
+        #             break
+        elif current_task_name == 'ADD_1':
+            # TODO: Pointers' positions > 0?
+            init_pointers_pos1 = int(np.random.randint(1, self.length))
+            init_pointers_pos2 = init_pointers_pos1
+            init_pointers_pos_o = init_pointers_pos1
+            init_pointers_pos_c = init_pointers_pos1
         elif current_task_name == 'LSHIFT':
             while True:
                 init_pointers_pos1 = int(np.random.randint(0, self.length))
                 init_pointers_pos2 = int(np.random.randint(0, self.length))
-                if not (init_pointers_pos1 == 0 and init_pointers_pos2 == 0):
+                init_pointers_pos_o = int(np.random.randint(0, self.length))
+                init_pointers_pos_c = int(np.random.randint(0, self.length))
+                if not (init_pointers_pos1 == 0 and init_pointers_pos2 == 0 \
+                and init_pointers_pos_o == 0 and init_pointers_pos_c == 0):
                     break
-        elif current_task_name == 'RSHIFT':
-            while True:
-                init_pointers_pos1 = int(np.random.randint(0, self.length))
-                init_pointers_pos2 = int(np.random.randint(0, self.length))
-                if not (init_pointers_pos1 == self.length - 1 and init_pointers_pos2 == self.length - 1):
-                    break
-        elif current_task_name == 'COMPSWAP':
-            init_pointers_pos1 = int(np.random.randint(0, self.length - 1))
-            init_pointers_pos2 = int(np.random.choice([init_pointers_pos1, init_pointers_pos1 + 1]))
+        elif current_task_name == 'CARRY':
+            # All pointers' positions should be > 0
+            init_pointers_pos1 = int(np.random.randint(1, self.length))
+            init_pointers_pos2 = init_pointers_pos1
+            init_pointers_pos_o = init_pointers_pos1
+            init_pointers_pos_c = init_pointers_pos1
         else:
             raise NotImplementedError('Unable to reset env for this program...')
 
         self.p1_pos = init_pointers_pos1
         self.p2_pos = init_pointers_pos2
+        self.p_c_pos = init_pointers_pos_c
+        self.p_o_pos = init_pointers_pos_o
         self.has_been_reset = True
 
     def get_state(self):
