@@ -330,16 +330,16 @@ class AddEnv(Environment):
         return bool
 
     # RESET
-    def _reset_precondition(self):
-        bool = True
-        return bool
+    # def _reset_precondition(self):
+    #     bool = True
+    #     return bool
 
-    def _reset_postcondition(self, init_state, state):
-        init_scratchpad_ints, init_p1_pos, init_p2_pos = init_state
-        scratchpad_ints, p1_pos, p2_pos = state
-        bool = np.array_equal(init_scratchpad_ints, scratchpad_ints)
-        bool &= (p1_pos == 0 and p2_pos == 0)
-        return bool
+    # def _reset_postcondition(self, init_state, state):
+    #     init_scratchpad_ints, init_p1_pos, init_p2_pos = init_state
+    #     scratchpad_ints, p1_pos, p2_pos = state
+    #     bool = np.array_equal(init_scratchpad_ints, scratchpad_ints)
+    #     bool &= (p1_pos == 0 and p2_pos == 0)
+    #     return bool
 
     def _one_hot_encode(self, digit, basis=10):
         """One hot encode a digit with basis.
