@@ -369,11 +369,24 @@ class AddEnv(Environment):
         return np.argmax(one_encoding)
 
     def reset_env(self):
-        """Reset the environment. The list are values are draw randomly. The pointers are initialized at position 0
-        (at left position of the list).
-
+        """Reset the environment. The two input values are draw randomly.
+        The pointers are initialized at position length-1 (at right position of the list).
+        The carry/output lists are initialized by value -1
         """
-        self.scratchpad_ints = np.random.randint(10, size=self.length)
+        self.scratchpad_ints_input_1 = np.random.randint(10, size=self.length)
+        self.scratchpad_ints_input_2 = np.random.randint(10, size=self.length)
+        self.scratchpad_ints_input_1[[0,1]] = 0
+        self.scratchpad_ints_input_2[[0,1]] = 0
+
+        self.scratchpad_ints_carry = np.full((self.length,), -1, dtype=int)
+        self.scratchpad_ints_carry[-1] = 0
+        self.scratchpad_ints_output = np.full((self.length,), -1, dtype=int)
+
+        self.scratchpad_ints_input_1 = np.zeros((length,), dtype=int) #[0]=0, others: randomly between 0-9
+        self.scratchpad_ints_input_2 = np.zeros((length,), dtype=int) #[0]=0, others: randomly between 0-9
+        self.scratchpad_ints_carry = np.zeros((length,), dtype=int)   #[length-1]=0, others = -1?
+        self.scratchpad_ints_output = np.zeros((length,), dtype=int)  #[:] = -1?
+
         current_task_name = self.get_program_from_index(self.current_task_index)
         if current_task_name == 'BUBBLE' or current_task_name == 'BUBBLESORT':
             init_pointers_pos1 = 0
