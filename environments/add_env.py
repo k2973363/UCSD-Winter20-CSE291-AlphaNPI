@@ -432,7 +432,9 @@ class AddEnv(Environment):
 
         """
         assert self.has_been_reset, 'Need to reset the environment before getting states'
-        return np.copy(self.scratchpad_ints), self.p1_pos, self.p2_pos
+        return np.copy(self.scratchpad_ints_input_1), np.copy(self.scratchpad_ints_input_2),\
+               np.copy(self.scratchpad_ints_carry), np.copy(self.scratchpad_ints_output),\
+               self.p1_pos, self.p2_pos, self.p_c_pos, self.p_o_pos
 
     def get_observation(self):
         """Returns an observation of the current state.
@@ -442,22 +444,32 @@ class AddEnv(Environment):
         """
         assert self.has_been_reset, 'Need to reset the environment before getting observations'
 
-        p1_val = self.scratchpad_ints[self.p1_pos]
-        p2_val = self.scratchpad_ints[self.p2_pos]
-        is_sorted = int(self._is_sorted())
-        pointers_same_pos = int(self.p1_pos == self.p2_pos)
+        p1_val = self.scratchpad_ints_input_1[self.p1_pos]
+        p2_val = self.scratchpad_ints_input_2[self.p2_pos]
+        p_c_val = self.scratchpad_ints_carry[self.p_c_pos]
+        p_o_val = self.scratchpad_ints_output[self.p_o_pos]
+        is_added = int(self._is_added())
+        pointers_same_pos = int(self.p1_pos == self.p2_pos and self.p2_pos == self.p_c_pos and self.p_c_pos == self.p_o_pos)
         pt_1_left = int(self.p1_pos == 0)
         pt_2_left = int(self.p2_pos == 0)
+        pt_c_left = int(self.p_c_pos == 0)
+        pt_o_left = int(self.p_o_pos == 0)
         pt_1_right = int(self.p1_pos == (self.length - 1))
         pt_2_right = int(self.p2_pos == (self.length - 1))
-        p1p2 = np.eye(10)[[p1_val, p2_val]].reshape(-1)
+        pt_c_right = int(self.p_c_pos == (self.length - 1))
+        pt_o_right = int(self.p_o_pos == (self.length - 1))
+        p1p2 = np.eye(10)[[p1_val, p2_val, p_c_val, p_o_val]].reshape(-1)
         bools = np.array([
             pt_1_left,
             pt_1_right,
             pt_2_left,
             pt_2_right,
+            pt_c_left,
+            pt_c_right,
+            pt_o_left,
+            pt_o_right,
             pointers_same_pos,
-            is_sorted
+            is_added
         ])
         return np.concatenate((p1p2, bools), axis=0)
 
@@ -467,7 +479,8 @@ class AddEnv(Environment):
         Returns:
             the size of the observation tensor
         """
-        return 2 * 10 + 6
+        #return 2 * 10 + 6
+        return 4 * 10 + 10
 
     def reset_to_state(self, state):
         """
@@ -477,11 +490,16 @@ class AddEnv(Environment):
         reset the environment is the given state
 
         """
-        self.scratchpad_ints = state[0].copy()
-        self.p1_pos = state[1]
-        self.p2_pos = state[2]
+        self.scratchpad_ints_input_1 = state[0].copy()
+        self.scratchpad_ints_input_2 = state[1].copy()
+        self.scratchpad_ints_carry = state[2].copy()
+        self.scratchpad_ints_output = state[3].copy()
+        self.p1_pos = state[4]
+        self.p2_pos = state[5]
+        self.p_c_pos = state[6]
+        self.p_o_pos = state[7]
 
-    def _is_sorted(self):
+    def _is_added(self):
         """Assert is the list is sorted or not.
 
         Args:
@@ -490,8 +508,28 @@ class AddEnv(Environment):
             True if the list is sorted, False otherwise
 
         """
-        arr = self.scratchpad_ints
-        return np.all(arr[:-1] <= arr[1:])
+        # arr = self.scratchpad_ints
+        # return np.all(arr[:-1] <= arr[1:])
+
+        bool = True
+        temp_carry = 0
+        correct_output = -1
+        for index in reversed(range(1, self.length)):
+            output = self.scratchpad_ints_input_1[index] + self.scratchpad_ints_input_2[index] + temp_carry
+            # Output
+            if output >= 10:
+                correct_output = output - 10
+                temp_carry = 1
+            else:
+                correct_output = output
+                temp_carry = 0
+            
+            if correct_output != self.scratchpad_ints_output[index]:
+                bool = False
+                break
+
+        # check if list is sorted
+        return bool
 
     def get_state_str(self, state):
         """Print a graphical representation of the environment state"""
