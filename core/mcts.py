@@ -412,7 +412,7 @@ class MCTS:
             final_node['selected'] = True
 
         print("Final state:")
-        print(self.env.get_state_str(self.env.get_state))
+        print(self.env.get_state_str(self.env.get_state()))
         print("Final Reward:")
         print(self.env.get_reward())
 
