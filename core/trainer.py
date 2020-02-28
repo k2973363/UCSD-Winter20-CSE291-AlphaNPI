@@ -76,7 +76,10 @@ class Trainer():
                 programs_failed_initstates = res
 
             if self.verbose:
-                print("Task_reward: %.2f, Rewards: %.2f" %(task_reward, rewards))
+                print("Task_reward:")
+                print(task_reward)
+                print("Rewards:")
+                print(rewards)
                 print("Observations: ")
                 print(observations)
 
