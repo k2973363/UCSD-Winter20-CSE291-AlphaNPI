@@ -1,3 +1,8 @@
+# AlphaNPI
+models/
+results/
+trainings/runs/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
