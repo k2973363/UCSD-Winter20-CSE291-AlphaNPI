@@ -65,8 +65,8 @@ class AddEnv(Environment):
                                 'CARRY': {'level': 1, 'recursive': False},
                                 #level - 2 operation
                                 #'RESET': {'level': 2, 'recursive': False},
-                                'LSHIFT': {'level': 2, 'recursive': False},
                                 'ADD_1': {'level': 2, 'recursive': False},
+                                'LSHIFT': {'level': 2, 'recursive': False},
                                 #level - 3 operation
                                 'ADD': {'level': 3, 'recursive': False}}
         for idx, key in enumerate(sorted(list(self.programs_library.keys()))):
@@ -97,8 +97,9 @@ class AddEnv(Environment):
                                     'WRITE_CARRY': self._write_carry_precondition
                                     }
 
-        self.prog_to_postcondition = {'LSHIFT': self._lshift_postcondition,
+        self.prog_to_postcondition = {
                                     'CARRY': self._carry_postcondition,
+                                    'LSHIFT': self._lshift_postcondition,
                                     #'RESET': self._reset_postcondition,
                                     'ADD_1': self._add_1_postcondition,
                                     'ADD': self._add_postcondition}
@@ -191,7 +192,8 @@ class AddEnv(Environment):
         # TODO: use "and" to have tighter precondition?
         #return self.p1_pos > 0 or self.p2_pos > 0 or self.p_o_pos > 0 or self.p_c_pos > 0
         #return self.p1_pos > 0 and self.p2_pos > 0 and self.p_o_pos > 0 and self.p_c_pos > 0
-        return self.p1_pos==self.p2_pos and self.p2_pos==self.p_o_pos and self.p_o_pos==self.p_c_pos
+        return self.p1_pos==self.p2_pos and self.p2_pos==self.p_o_pos and \
+               self.p_o_pos==self.p_c_pos and self.p_o_pos > 0
 
     def _lshift_postcondition(self, init_state, state):
         init_scratchpad_ints_input_1, init_scratchpad_ints_input_2, \
@@ -437,20 +439,23 @@ class AddEnv(Environment):
         #         if not (init_pointers_pos1 == 0 and init_pointers_pos2 == 0):
         #             break
         elif current_task_name == 'ADD_1':
-            # TODO: Pointers' positions > 0?
             init_pointers_pos1 = int(np.random.randint(1, self.length))
             init_pointers_pos2 = init_pointers_pos1
             init_pointers_pos_o = init_pointers_pos1
             init_pointers_pos_c = init_pointers_pos1
         elif current_task_name == 'LSHIFT':
-            while True:
-                init_pointers_pos1 = int(np.random.randint(0, self.length))
-                init_pointers_pos2 = int(np.random.randint(0, self.length))
-                init_pointers_pos_o = int(np.random.randint(0, self.length))
-                init_pointers_pos_c = int(np.random.randint(0, self.length))
-                if not (init_pointers_pos1 == 0 and init_pointers_pos2 == 0 \
-                and init_pointers_pos_o == 0 and init_pointers_pos_c == 0):
-                    break
+            # while True:
+            #     init_pointers_pos1 = int(np.random.randint(0, self.length))
+            #     init_pointers_pos2 = int(np.random.randint(0, self.length))
+            #     init_pointers_pos_o = int(np.random.randint(0, self.length))
+            #     init_pointers_pos_c = int(np.random.randint(0, self.length))
+            #     if not (init_pointers_pos1 == 0 and init_pointers_pos2 == 0 \
+            #     and init_pointers_pos_o == 0 and init_pointers_pos_c == 0):
+            #         break
+            init_pointers_pos1 = int(np.random.randint(1, self.length))
+            init_pointers_pos2 = init_pointers_pos1
+            init_pointers_pos_o = init_pointers_pos1
+            init_pointers_pos_c = init_pointers_pos1
         elif current_task_name == 'CARRY':
             # All pointers' positions should be > 0
             init_pointers_pos1 = int(np.random.randint(1, self.length))
