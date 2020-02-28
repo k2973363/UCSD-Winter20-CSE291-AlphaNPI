@@ -75,6 +75,11 @@ class Trainer():
                 task_reward, clean_sub_execution, rewards, programs_failed_indices, \
                 programs_failed_initstates = res
 
+            if self.verbose:
+                print("Task_reward: %.2f, Rewards: %.2f" %(task_reward, rewards))
+                print("Observations: ")
+                print(observations)
+
             # record trace and store it in buffer only if no problem in sub-programs execution
             if clean_sub_execution:
                 # Generates trace

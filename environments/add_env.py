@@ -65,10 +65,10 @@ class AddEnv(Environment):
                                 'CARRY': {'level': 1, 'recursive': False},
                                 #level - 2 operation
                                 #'RESET': {'level': 2, 'recursive': False},
-                                'ADD_1': {'level': 2, 'recursive': False},
-                                'LSHIFT': {'level': 2, 'recursive': False},
+                                # 'ADD_1': {'level': 2, 'recursive': False},
+                                # 'LSHIFT': {'level': 2, 'recursive': False},
                                 #level - 3 operation
-                                'ADD': {'level': 3, 'recursive': False}}
+                                # 'ADD': {'level': 3, 'recursive': False}}
         for idx, key in enumerate(sorted(list(self.programs_library.keys()))):
             self.programs_library[key]['index'] = idx
 
@@ -471,10 +471,10 @@ class AddEnv(Environment):
         self.p_o_pos = init_pointers_pos_o
         self.has_been_reset = True
 
-        # print("reset_env(): %s, input1: %s, input2: %s, carry: %s, output: %s, p1_pos: %d, p2_pos: %d, p_c_pos: %d, p_o_pos: %d"\
-        #      %(current_task_name, self.scratchpad_ints_input_1, self.scratchpad_ints_input_2,\
-        #      self.scratchpad_ints_carry, self.scratchpad_ints_output,\
-        #      self.p1_pos, self.p2_pos, self.p_c_pos, self.p_o_pos))
+        print("reset_env(): %s, input1: %s, input2: %s, carry: %s, output: %s, p1_pos: %d, p2_pos: %d, p_c_pos: %d, p_o_pos: %d"\
+             %(current_task_name, self.scratchpad_ints_input_1, self.scratchpad_ints_input_2,\
+             self.scratchpad_ints_carry, self.scratchpad_ints_output,\
+             self.p1_pos, self.p2_pos, self.p_c_pos, self.p_o_pos))
 
     def get_state(self):
         """Returns the current state.
