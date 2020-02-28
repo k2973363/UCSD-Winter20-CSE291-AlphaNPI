@@ -80,8 +80,6 @@ class Trainer():
                 print(task_reward)
                 print("Rewards:")
                 print(rewards)
-                print("Observations: ")
-                print(observations)
 
             # record trace and store it in buffer only if no problem in sub-programs execution
             if clean_sub_execution:

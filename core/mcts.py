@@ -411,6 +411,11 @@ class MCTS:
             final_node, max_depth_reached = self._play_episode(self.root_node)
             final_node['selected'] = True
 
+        print("Final state:")
+        print(self.env.get_state_str(self.env.get_state))
+        print("Final Reward:")
+        print(self.env.get_reward())
+
         # compute final task reward (with gamma penalization)
         reward = self.env.get_reward()
         if reward > 0:
