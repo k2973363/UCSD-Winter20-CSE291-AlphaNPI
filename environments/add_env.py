@@ -466,7 +466,7 @@ class AddEnv(Environment):
         self.p_o_pos = init_pointers_pos_o
         self.has_been_reset = True
 
-        print("reset_env(): {}, input1: {}, input2: {}, carry: {}, output: {},"\
+        print("reset_env(): %s, input1: %s, input2: %s, carry: %s, output: %s,"\
              %(current_task_name, self.scratchpad_ints_input_1, self.scratchpad_ints_input_2,\
              self.scratchpad_ints_carry, self.scratchpad_ints_output))
 
