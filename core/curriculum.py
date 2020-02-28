@@ -73,7 +73,7 @@ class CurriculumScheduler():
         '''
         res = 'max level: {}, mean rewards:'.format(self.maximum_level)
         for prog_name, prog in self.non_primary_programs.items():
-            res += ' %s:%.3f ,' % (prog_name, self.tasks_average_rewards[self.relative_indices[prog['index']]])
+            res += ' %s:%.9f ,' % (prog_name, self.tasks_average_rewards[self.relative_indices[prog['index']]])
         print(res)
 
     def get_statistic(self, task_index):
