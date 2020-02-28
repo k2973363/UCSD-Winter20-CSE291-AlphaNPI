@@ -62,10 +62,10 @@ class AddEnv(Environment):
                                 'WRITE_OUTPUT': {'level': 0, 'recursive': False},
                                 'WRITE_CARRY': {'level': 0, 'recursive': False},
                                 #level - 1 operations
-                                'CARRY': {'level': 1, 'recursive': False}
+                                'CARRY': {'level': 1, 'recursive': False},
                                 #level - 2 operation
                                 #'RESET': {'level': 2, 'recursive': False},
-                                # 'ADD_1': {'level': 2, 'recursive': False},
+                                'ADD_1': {'level': 2, 'recursive': False},
                                 # 'LSHIFT': {'level': 2, 'recursive': False},
                                 #level - 3 operation
                                 # 'ADD': {'level': 3, 'recursive': False}
