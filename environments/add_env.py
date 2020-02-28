@@ -65,7 +65,7 @@ class AddEnv(Environment):
                                 # 'CARRY': {'level': 1, 'recursive': False},
                                 #level - 2 operation
                                 #'RESET': {'level': 2, 'recursive': False},
-                                'LSHIFT': {'level': 2, 'recursive': False},
+                                'LSHIFT': {'level': 1, 'recursive': False},
                                 'ADD_1': {'level': 2, 'recursive': False},
                                 #level - 3 operation
                                 'ADD': {'level': 3, 'recursive': False}}
