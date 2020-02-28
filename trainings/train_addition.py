@@ -98,8 +98,10 @@ if __name__ == "__main__":
 
     # TODO
     min_length = 2
-    max_length = 7
-    validation_length = 7
+    # max_length = 7
+    # validation_length = 7
+    max_length = 5
+    validation_length = 5
     # Start training
     for iteration in range(conf.num_iterations):
         if verbose:
