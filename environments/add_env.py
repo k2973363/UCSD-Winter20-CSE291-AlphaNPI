@@ -62,7 +62,7 @@ class AddEnv(Environment):
                                 'WRITE_OUTPUT': {'level': 0, 'recursive': False},
                                 'WRITE_CARRY': {'level': 0, 'recursive': False},
                                 #level - 1 operations
-                                'CARRY': {'level': 1, 'recursive': False},
+                                # 'CARRY': {'level': 1, 'recursive': False},
                                 #level - 2 operation
                                 #'RESET': {'level': 2, 'recursive': False},
                                 'LSHIFT': {'level': 2, 'recursive': False},
@@ -85,7 +85,7 @@ class AddEnv(Environment):
         self.prog_to_precondition = {'ADD': self._add_precondition,
                                     'ADD_1': self._add_1_precondition,
                                     'LSHIFT': self._lshift_precondition,
-                                    'CARRY': self._carry_precondition,
+                                    # 'CARRY': self._carry_precondition,
                                     #'RESET': self._reset_precondition,
                                     'STOP': self._stop_precondition,
                                     'PTR_1_LEFT': self._ptr_1_left_precondition,
@@ -98,7 +98,7 @@ class AddEnv(Environment):
                                     }
 
         self.prog_to_postcondition = {'LSHIFT': self._lshift_postcondition,
-                                    'CARRY': self._carry_postcondition,
+                                    # 'CARRY': self._carry_postcondition,
                                     #'RESET': self._reset_postcondition,
                                     'ADD_1': self._add_1_postcondition,
                                     'ADD': self._add_postcondition}
@@ -190,7 +190,8 @@ class AddEnv(Environment):
     def _lshift_precondition(self):
         # TODO: use "and" to have tighter precondition?
         #return self.p1_pos > 0 or self.p2_pos > 0 or self.p_o_pos > 0 or self.p_c_pos > 0
-        return self.p1_pos > 0 and self.p2_pos > 0 and self.p_o_pos > 0 and self.p_c_pos > 0
+        #return self.p1_pos > 0 and self.p2_pos > 0 and self.p_o_pos > 0 and self.p_c_pos > 0
+        return self.p1_pos==self.p2_pos and self.p2_pos==self.p_o_pos and self.p_o_pos==self.p_c_pos
 
     def _lshift_postcondition(self, init_state, state):
         init_scratchpad_ints_input_1, init_scratchpad_ints_input_2, \
