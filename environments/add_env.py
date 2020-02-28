@@ -62,10 +62,10 @@ class AddEnv(Environment):
                                 'WRITE_OUTPUT': {'level': 0, 'recursive': False},
                                 'WRITE_CARRY': {'level': 0, 'recursive': False},
                                 #level - 1 operations
-                                # 'CARRY': {'level': 1, 'recursive': False},
+                                'CARRY': {'level': 1, 'recursive': False},
                                 #level - 2 operation
                                 #'RESET': {'level': 2, 'recursive': False},
-                                'LSHIFT': {'level': 1, 'recursive': False},
+                                'LSHIFT': {'level': 2, 'recursive': False},
                                 'ADD_1': {'level': 2, 'recursive': False},
                                 #level - 3 operation
                                 'ADD': {'level': 3, 'recursive': False}}
@@ -85,7 +85,7 @@ class AddEnv(Environment):
         self.prog_to_precondition = {'ADD': self._add_precondition,
                                     'ADD_1': self._add_1_precondition,
                                     'LSHIFT': self._lshift_precondition,
-                                    # 'CARRY': self._carry_precondition,
+                                    'CARRY': self._carry_precondition,
                                     #'RESET': self._reset_precondition,
                                     'STOP': self._stop_precondition,
                                     'PTR_1_LEFT': self._ptr_1_left_precondition,
@@ -98,7 +98,7 @@ class AddEnv(Environment):
                                     }
 
         self.prog_to_postcondition = {'LSHIFT': self._lshift_postcondition,
-                                    # 'CARRY': self._carry_postcondition,
+                                    'CARRY': self._carry_postcondition,
                                     #'RESET': self._reset_postcondition,
                                     'ADD_1': self._add_1_postcondition,
                                     'ADD': self._add_postcondition}
