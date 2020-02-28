@@ -238,21 +238,21 @@ class AddEnv(Environment):
         init_scratchpad_ints_carry, init_scratchpad_ints_output, \
         init_p1_pos, init_p2_pos, init_p_c_pos, init_p_o_pos = init_state
 
-        scratchpad_ints_input_1, scratchpad_ints_input_2, \
-        scratchpad_ints_carry, scratchpad_ints_output, \
-        p1_pos, p2_pos, p_c_pos, p_o_pos = state
+        # scratchpad_ints_input_1, scratchpad_ints_input_2, \
+        # scratchpad_ints_carry, scratchpad_ints_output, \
+        # p1_pos, p2_pos, p_c_pos, p_o_pos = state
 
-        if init_p1_pos!=p1_pos or init_p2_pos!=p2_pos or init_p_c_pos!=p_c_pos or init_p_o_pos!=p_o_pos:
-            return False
+        # if init_p1_pos!=p1_pos or init_p2_pos!=p2_pos or init_p_c_pos!=p_c_pos or init_p_o_pos!=p_o_pos:
+        #     return False
 
-        if np.array_equal(init_scratchpad_ints_input_1, scratchpad_ints_input_1):
-            return False
+        # if np.array_equal(init_scratchpad_ints_input_1, scratchpad_ints_input_1):
+        #     return False
 
-        if np.array_equal(init_scratchpad_ints_input_2, scratchpad_ints_input_2):
-            return False
+        # if np.array_equal(init_scratchpad_ints_input_2, scratchpad_ints_input_2):
+        #     return False
 
-        if np.array_equal(init_scratchpad_ints_output, scratchpad_ints_output):
-            return False
+        # if np.array_equal(init_scratchpad_ints_output, scratchpad_ints_output):
+        #     return False
 
         new_scratchpad_ints_carry = np.copy(init_scratchpad_ints_carry)
 
@@ -265,17 +265,17 @@ class AddEnv(Environment):
         else:
             new_scratchpad_ints_carry[init_p_c_pos - 1] = 0
 
-        if np.array_equal(new_scratchpad_ints_carry, scratchpad_ints_carry):
-            return False
+        # if np.array_equal(new_scratchpad_ints_carry, scratchpad_ints_carry):
+        #     return False
 
         # Check is the operation has already done
         updated = init_scratchpad_ints_carry[init_p_c_pos - 1] != new_scratchpad_ints_carry[init_p_c_pos - 1]
 
-        # new_state = (init_scratchpad_ints_input_1, init_scratchpad_ints_input_2,
-        #             new_scratchpad_ints_carry, init_scratchpad_ints_output,
-        #             init_p1_pos, init_p2_pos, init_p_c_pos, init_p_o_pos)
-        # return self.compare_state(state, new_state) and updated
-        return updated
+        new_state = (init_scratchpad_ints_input_1, init_scratchpad_ints_input_2,
+                    new_scratchpad_ints_carry, init_scratchpad_ints_output,
+                    init_p1_pos, init_p2_pos, init_p_c_pos, init_p_o_pos)
+        return self.compare_state(state, new_state) and updated
+        # return updated
 
     def _add_1_precondition(self):
         """All the pointers should be at the same position
@@ -291,18 +291,18 @@ class AddEnv(Environment):
         init_scratchpad_ints_carry, init_scratchpad_ints_output, \
         init_p1_pos, init_p2_pos, init_p_c_pos, init_p_o_pos = init_state
 
-        scratchpad_ints_input_1, scratchpad_ints_input_2, \
-        scratchpad_ints_carry, scratchpad_ints_output, \
-        p1_pos, p2_pos, p_c_pos, p_o_pos = state
+        # scratchpad_ints_input_1, scratchpad_ints_input_2, \
+        # scratchpad_ints_carry, scratchpad_ints_output, \
+        # p1_pos, p2_pos, p_c_pos, p_o_pos = state
 
-        if init_p1_pos!=p1_pos or init_p2_pos!=p2_pos or init_p_c_pos!=p_c_pos or init_p_o_pos!=p_o_pos:
-            return False
+        # if init_p1_pos!=p1_pos or init_p2_pos!=p2_pos or init_p_c_pos!=p_c_pos or init_p_o_pos!=p_o_pos:
+        #     return False
 
-        if np.array_equal(init_scratchpad_ints_input_1, scratchpad_ints_input_1):
-            return False
+        # if np.array_equal(init_scratchpad_ints_input_1, scratchpad_ints_input_1):
+        #     return False
 
-        if np.array_equal(init_scratchpad_ints_input_2, scratchpad_ints_input_2):
-            return False
+        # if np.array_equal(init_scratchpad_ints_input_2, scratchpad_ints_input_2):
+        #     return False
 
         new_scratchpad_ints_carry = np.copy(init_scratchpad_ints_carry)
         new_scratchpad_ints_output = np.copy(init_scratchpad_ints_output)
@@ -321,21 +321,21 @@ class AddEnv(Environment):
         else:
             new_scratchpad_ints_output[init_p_o_pos] = output       
 
-        if np.array_equal(new_scratchpad_ints_carry, scratchpad_ints_carry):
-            return False
+        # if np.array_equal(new_scratchpad_ints_carry, scratchpad_ints_carry):
+        #     return False
 
-        if np.array_equal(new_scratchpad_ints_output, scratchpad_ints_output):
-            return False
+        # if np.array_equal(new_scratchpad_ints_output, scratchpad_ints_output):
+        #     return False
 
         # Check is the operation has already done
         updated = init_scratchpad_ints_carry[init_p_c_pos - 1] != new_scratchpad_ints_carry[init_p_c_pos - 1]
         updated &= init_scratchpad_ints_output[init_p_o_pos] != new_scratchpad_ints_output[init_p_o_pos]
 
-        # new_state = (init_scratchpad_ints_input_1, init_scratchpad_ints_input_2,
-        #             new_scratchpad_ints_carry, new_scratchpad_ints_output,
-        #             init_p1_pos, init_p2_pos, init_p_c_pos, init_p_o_pos)
-        # return self.compare_state(state, new_state) and updated
-        return updated
+        new_state = (init_scratchpad_ints_input_1, init_scratchpad_ints_input_2,
+                    new_scratchpad_ints_carry, new_scratchpad_ints_output,
+                    init_p1_pos, init_p2_pos, init_p_c_pos, init_p_o_pos)
+        return self.compare_state(state, new_state) and updated
+        # return updated
 
     def _add_precondition(self):
         """All the pointers should be at the initial position"""
