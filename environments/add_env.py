@@ -189,7 +189,8 @@ class AddEnv(Environment):
 
     def _lshift_precondition(self):
         # TODO: use "and" to have tighter precondition?
-        return self.p1_pos > 0 or self.p2_pos > 0 or self.p_o_pos > 0 or self.p_c_pos > 0
+        #return self.p1_pos > 0 or self.p2_pos > 0 or self.p_o_pos > 0 or self.p_c_pos > 0
+        return self.p1_pos > 0 and self.p2_pos > 0 and self.p_o_pos > 0 and self.p_c_pos > 0
 
     def _lshift_postcondition(self, init_state, state):
         init_scratchpad_ints_input_1, init_scratchpad_ints_input_2, \
