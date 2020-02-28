@@ -59,7 +59,7 @@ class Trainer():
         # Get new task to attempt
         task_name = self.env.get_program_from_index(task_index)
         if self.verbose:
-            print('Attempt task {} for {} episodes'.format(task_name, self.num_episodes_per_task))
+            print('Attempt task {} (length {})for {} episodes'.format(task_name, self.env.length, self.num_episodes_per_task))
 
         # Start training on the task
         for episode in range(self.num_episodes_per_task):
