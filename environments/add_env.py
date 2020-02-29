@@ -272,14 +272,12 @@ class AddEnv(Environment):
         #     return False
 
         # Check is the operation has already done
-        updated = init_scratchpad_ints_carry[init_p_c_pos - 1] != new_scratchpad_ints_carry[init_p_c_pos - 1]
-        updated = True
+        # updated = init_scratchpad_ints_carry[init_p_c_pos - 1] != new_scratchpad_ints_carry[init_p_c_pos - 1]
 
         new_state = (init_scratchpad_ints_input_1, init_scratchpad_ints_input_2,
                     new_scratchpad_ints_carry, init_scratchpad_ints_output,
                     init_p1_pos, init_p2_pos, init_p_c_pos, init_p_o_pos)
-        return self.compare_state(state, new_state) and updated
-        # return updated
+        return self.compare_state(state, new_state)
 
     def _add_1_precondition(self):
         """All the pointers should be at the same position
@@ -332,14 +330,13 @@ class AddEnv(Environment):
         #     return False
 
         # Check is the operation has already done
-        updated = init_scratchpad_ints_carry[init_p_c_pos - 1] != new_scratchpad_ints_carry[init_p_c_pos - 1]
-        updated &= init_scratchpad_ints_output[init_p_o_pos] != new_scratchpad_ints_output[init_p_o_pos]
+        # updated = init_scratchpad_ints_carry[init_p_c_pos - 1] != new_scratchpad_ints_carry[init_p_c_pos - 1]
+        # updated &= init_scratchpad_ints_output[init_p_o_pos] != new_scratchpad_ints_output[init_p_o_pos]
 
         new_state = (init_scratchpad_ints_input_1, init_scratchpad_ints_input_2,
                     new_scratchpad_ints_carry, new_scratchpad_ints_output,
                     init_p1_pos, init_p2_pos, init_p_c_pos, init_p_o_pos)
-        return self.compare_state(state, new_state) and updated
-        # return updated
+        return self.compare_state(state, new_state)
 
     def _add_precondition(self):
         """All the pointers should be at the initial position"""
