@@ -66,9 +66,9 @@ class AddEnv(Environment):
                                 #level - 2 operation
                                 #'RESET': {'level': 2, 'recursive': False},
                                 'ADD_1': {'level': 2, 'recursive': False},
-                                # 'LSHIFT': {'level': 2, 'recursive': False},
+                                'LSHIFT': {'level': 2, 'recursive': False},
                                 #level - 3 operation
-                                # 'ADD': {'level': 3, 'recursive': False}
+                                'ADD': {'level': 3, 'recursive': False}
                                 }
         for idx, key in enumerate(sorted(list(self.programs_library.keys()))):
             self.programs_library[key]['index'] = idx
