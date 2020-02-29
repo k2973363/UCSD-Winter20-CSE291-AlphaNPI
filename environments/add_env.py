@@ -273,6 +273,7 @@ class AddEnv(Environment):
 
         # Check is the operation has already done
         updated = init_scratchpad_ints_carry[init_p_c_pos - 1] != new_scratchpad_ints_carry[init_p_c_pos - 1]
+        updated = True
 
         new_state = (init_scratchpad_ints_input_1, init_scratchpad_ints_input_2,
                     new_scratchpad_ints_carry, init_scratchpad_ints_output,
